@@ -1,19 +1,53 @@
-import { useRef, useEffect } from "react";
-import { Engine, Scene } from "react-babylonjs";
-import { Vector3, Color3 } from "@babylonjs/core";
+import { useRef } from "react";
+import { Engine, ILoadedModel, Scene } from "react-babylonjs";
+import {
+  Vector3,
+  Color3,
+  ArcRotateCamera,
+  Nullable,
+  FramingBehavior,
+} from "@babylonjs/core";
 import ScaledModelWithProgress from "./ScaledModelWithProgress";
 import "@babylonjs/loaders";
 import "@babylonjs/inspector";
 
-export const SceneWithSpinningBoxes = () => {
-  const camera: any = useRef(null);
+export const RenderModel = () => {
+  const camera = useRef<Nullable<ArcRotateCamera>>(null);
 
-  const onModelLoaded = (e: any) => {
-    console.log(e.rootMesh);
+  const onModelLoaded = (e: ILoadedModel) => {
+    if (camera && camera.current) {
+      if (e.loaderName === "gltf") {
+        camera.current.alpha += Math.PI;
+      }
 
-    if (camera && camera.current && camera.current.setPosition) {
-      camera.current.setPosition(e.rootMesh._position);
-      // camera.current.setRotation(e.rootMesh._rotation);
+      // Enable camera's behaviors (done declaratively)
+      camera.current.useFramingBehavior = true;
+      var framingBehavior = camera.current.getBehaviorByName(
+        "Framing"
+      ) as FramingBehavior;
+      framingBehavior.framingTime = 0;
+      framingBehavior.elevationReturnTime = -1;
+
+      if (e.rootMesh) {
+        camera.current.lowerRadiusLimit = null;
+
+        var worldExtends = e.rootMesh
+          .getScene()
+          .getWorldExtends(
+            (mesh) =>
+              mesh.isVisible &&
+              mesh.isEnabled() &&
+              !mesh.name.startsWith("Background") &&
+              !mesh.name.startsWith("box")
+          );
+        console.log("zoomOnBoundingInfo", worldExtends.min, worldExtends.max);
+        framingBehavior.zoomOnBoundingInfo(worldExtends.min, worldExtends.max);
+      } else {
+        console.warn("no root mesh");
+      }
+
+      camera.current.pinchPrecision = 200 / camera.current.radius;
+      camera.current.upperRadiusLimit = 5 * camera.current.radius;
     }
   };
 
@@ -61,7 +95,7 @@ export const SceneWithSpinningBoxes = () => {
           center={Vector3.Zero()}
           modelRotation={Vector3.Zero()}
           scaleTo={1}
-          onModelLoaded={(e: any) => {
+          onModelLoaded={(e: ILoadedModel) => {
             onModelLoaded(e);
           }}
         />
