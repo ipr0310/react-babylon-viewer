@@ -40,7 +40,7 @@ export const RenderModel = () => {
               !mesh.name.startsWith("Background") &&
               !mesh.name.startsWith("box")
           );
-        console.log("zoomOnBoundingInfo", worldExtends.min, worldExtends.max);
+
         framingBehavior.zoomOnBoundingInfo(worldExtends.min, worldExtends.max);
       } else {
         console.warn("no root mesh");
@@ -72,29 +72,28 @@ export const RenderModel = () => {
           allowUpsideDown={false}
           checkCollisions
           radius={2}
-          lowerRadiusLimit={0.5}
-          upperRadiusLimit={15}
+          lowerRadiusLimit={25}
+          upperRadiusLimit={75}
           useFramingBehavior={true}
           wheelDeltaPercentage={0.01}
           pinchDeltaPercentage={0.01}
-          onMeshTargetChangedObservable={true}
         />
 
         <environmentHelper
           options={{
-            enableGroundShadow: true,
-            groundYBias: 1,
+            enableGroundShadow: false,
+            createGround: false,
+            skyboxSize: 1000,
           }}
           setMainColor={[Color3.FromHexString("#ffffff")]}
         />
 
         <ScaledModelWithProgress
           rootUrl={`3d/`}
-          sceneFilename="knight.glb"
+          sceneFilename="selva.glb"
           progressBarColor={Color3.FromInts(135, 206, 235)}
           center={Vector3.Zero()}
           modelRotation={Vector3.Zero()}
-          scaleTo={1}
           onModelLoaded={(e: ILoadedModel) => {
             onModelLoaded(e);
           }}
@@ -103,5 +102,3 @@ export const RenderModel = () => {
     </Engine>
   );
 };
-
-//#74b9ff
