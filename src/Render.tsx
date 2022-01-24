@@ -90,7 +90,7 @@ export const RenderModel = () => {
 
         <ScaledModelWithProgress
           rootUrl={`3d/`}
-          sceneFilename="selva.glb"
+          sceneFilename="statue.glb"
           progressBarColor={Color3.FromInts(135, 206, 235)}
           center={Vector3.Zero()}
           modelRotation={Vector3.Zero()}
